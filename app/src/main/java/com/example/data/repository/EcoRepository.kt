@@ -13,6 +13,8 @@ import com.example.data.remote.RetrofitClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 
 class EcoRepository(
     private val userSessionDao: UserSessionDao,
@@ -54,6 +56,44 @@ class EcoRepository(
         chatDao.clearChats()
     }
 
+    private fun cleanStreamOrText(raw: String): String {
+        val lines = raw.split("\n")
+        val builder = java.lang.StringBuilder()
+        var hasStreamChunks = false
+        for (line in lines) {
+            val trimmed = line.trim()
+            if (trimmed.startsWith("0:\"") && trimmed.endsWith("\"")) {
+                hasStreamChunks = true
+                val inner = trimmed.substring(3, trimmed.length - 1)
+                    .replace("\\n", "\n")
+                    .replace("\\\"", "\"")
+                    .replace("\\\\", "\\")
+                builder.append(inner)
+            } else if (trimmed.startsWith("data: ")) {
+                hasStreamChunks = true
+                val dataContent = trimmed.substring(6).trim()
+                if (dataContent != "[DONE]") {
+                    try {
+                        val dataJson = org.json.JSONObject(dataContent)
+                        val choices = dataJson.optJSONArray("choices")
+                        val delta = choices?.optJSONObject(0)?.optJSONObject("delta")
+                        val content = delta?.optString("content")
+                        if (!content.isNullOrBlank()) {
+                            builder.append(content)
+                        }
+                    } catch (e: Exception) {
+                        // ignore parsing error
+                    }
+                }
+            }
+        }
+        if (hasStreamChunks) {
+            val result = builder.toString()
+            if (result.isNotBlank()) return result
+        }
+        return raw
+    }
+
     suspend fun sendMessageToPrakritiMitra(
         userInput: String,
         detectedLang: String,
@@ -85,58 +125,122 @@ class EcoRepository(
             6. Keep answers concise, clear, and relevant.
         """.trimIndent()
 
-        // 1. TRY VERCEL OpenAI ROUTE (Preferred, as user specified Vercel + OpenAI key)
-        try {
-            Log.d("EcoRepository", "Attempting Vercel OpenAI route...")
-            val messages = mutableListOf<com.example.data.remote.OpenAiMessage>()
-            messages.add(com.example.data.remote.OpenAiMessage("system", systemPrompt))
-            chatHistory.takeLast(8).forEach { entry ->
-                val role = if (entry.sender == "user") "user" else "assistant"
-                messages.add(com.example.data.remote.OpenAiMessage(role, entry.text))
-            }
-            messages.add(com.example.data.remote.OpenAiMessage("user", userInput))
+        // Build list of OpenAI messages
+        val openAiMessages = mutableListOf<org.json.JSONObject>()
+        openAiMessages.add(org.json.JSONObject().put("role", "system").put("content", systemPrompt))
+        chatHistory.takeLast(8).forEach { entry ->
+            val role = if (entry.sender == "user") "user" else "assistant"
+            openAiMessages.add(org.json.JSONObject().put("role", role).put("content", entry.text))
+        }
+        openAiMessages.add(org.json.JSONObject().put("role", "user").put("content", userInput))
 
-            val request = com.example.data.remote.OpenAiRequest(
-                model = "gpt-3.5-turbo",
-                messages = messages
-            )
-            val authHeader = "Bearer $resolvedOpenAiKey"
-            val response = RetrofitClient.vercelOpenAiService.getChatCompletion(authHeader, request)
-            val reply = response.choices?.firstOrNull()?.message?.content
-            if (!reply.isNullOrBlank()) {
-                Log.i("EcoRepository", "Vercel OpenAI routed reply received successfully!")
-                return@withContext reply
-            }
+        val openAiRequestJson = try {
+            org.json.JSONObject().apply {
+                put("model", "gpt-3.5-turbo")
+                put("messages", org.json.JSONArray(openAiMessages))
+            }.toString()
         } catch (e: Exception) {
-            Log.w("EcoRepository", "Vercel OpenAI route failed/unsupported: ${e.message}")
+            ""
         }
 
-        // 2. TRY VERCEL GEMINI ROUTE
-        try {
-            Log.d("EcoRepository", "Attempting Vercel Gemini route...")
-            val contents = mutableListOf<GeminiContent>()
-            chatHistory.takeLast(8).forEach { entry ->
-                contents.add(GeminiContent(parts = listOf(GeminiPart(text = entry.text))))
-            }
-            contents.add(GeminiContent(parts = listOf(GeminiPart(text = userInput))))
-
-            val request = GeminiRequest(
-                contents = contents,
-                systemInstruction = GeminiContent(parts = listOf(GeminiPart(text = systemPrompt)))
-            )
-            val response = RetrofitClient.vercelGeminiService.generateContent(resolvedGeminiKey, request)
-            val reply = response.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
-            if (!reply.isNullOrBlank()) {
-                Log.i("EcoRepository", "Vercel Gemini routed reply received successfully!")
-                return@withContext reply
-            }
+        val vercelAiSdkRequestJson = try {
+            org.json.JSONObject().apply {
+                put("messages", org.json.JSONArray(openAiMessages))
+            }.toString()
         } catch (e: Exception) {
-            Log.w("EcoRepository", "Vercel Gemini route failed: ${e.message}")
+            ""
         }
 
-        // 3. TRY STANDARD GOOGLEAPIS GEMINI SERVICE
+        data class EndpointTry(
+            val urlSuffix: String,
+            val payload: String,
+            val authHeader: String?
+        )
+
+        val endpointsToTry = mutableListOf<EndpointTry>()
+        if (openAiRequestJson.isNotBlank()) {
+            endpointsToTry.add(EndpointTry("v1/chat/completions", openAiRequestJson, "Bearer $resolvedOpenAiKey"))
+            endpointsToTry.add(EndpointTry("api/v1/chat/completions", openAiRequestJson, "Bearer $resolvedOpenAiKey"))
+            endpointsToTry.add(EndpointTry("api/openai", openAiRequestJson, "Bearer $resolvedOpenAiKey"))
+        }
+        if (vercelAiSdkRequestJson.isNotBlank()) {
+            endpointsToTry.add(EndpointTry("api/chat", vercelAiSdkRequestJson, "Bearer $resolvedOpenAiKey"))
+            endpointsToTry.add(EndpointTry("api/chat", vercelAiSdkRequestJson, null))
+        }
+
+        val mediaType = "application/json".toMediaTypeOrNull()
+
+        // 1. Try Vercel endpoints
+        for (endpoint in endpointsToTry) {
+            try {
+                Log.d("EcoRepository", "Attempting Vercel endpoint: ${endpoint.urlSuffix} with payload of length ${endpoint.payload.length}")
+                if (mediaType != null) {
+                    val body = endpoint.payload.toRequestBody(mediaType)
+                    val responseBody = RetrofitClient.genericVercelService.postJson(
+                        url = endpoint.urlSuffix,
+                        authHeader = endpoint.authHeader,
+                        body = body
+                    )
+                    val rawResponse = responseBody.string()
+                    Log.d("EcoRepository", "Vercel answered with raw response of length ${rawResponse.length}")
+                    
+                    if (rawResponse.isNotBlank()) {
+                        // Attempt to parse as JSON first
+                        if (rawResponse.trim().startsWith("{") || rawResponse.trim().startsWith("[")) {
+                            try {
+                                val json = org.json.JSONObject(rawResponse)
+                                // OpenAI structure
+                                if (json.has("choices")) {
+                                    val choices = json.optJSONArray("choices")
+                                    val firstChoice = choices?.optJSONObject(0)
+                                    val message = firstChoice?.optJSONObject("message")
+                                    val content = message?.optString("content")
+                                    if (!content.isNullOrBlank()) {
+                                        Log.i("EcoRepository", "Successfully parsed OpenAI choices from: ${endpoint.urlSuffix}")
+                                        return@withContext content
+                                    }
+                                }
+                                // Gemini structure
+                                if (json.has("candidates")) {
+                                    val candidates = json.optJSONArray("candidates")
+                                    val firstCandidate = candidates?.optJSONObject(0)
+                                    val content = firstCandidate?.optJSONObject("content")
+                                    val parts = content?.optJSONArray("parts")
+                                    val text = parts?.optJSONObject(0)?.optString("text")
+                                    if (!text.isNullOrBlank()) {
+                                        Log.i("EcoRepository", "Successfully parsed Gemini candidates from: ${endpoint.urlSuffix}")
+                                        return@withContext text
+                                    }
+                                }
+                                // Generic JSON content flags
+                                for (key in listOf("content", "text", "response", "reply", "message")) {
+                                    val valStr = json.optString(key)
+                                    if (!valStr.isNullOrBlank()) {
+                                        Log.i("EcoRepository", "Successfully parsed generic JSON field '$key' from: ${endpoint.urlSuffix}")
+                                        return@withContext valStr
+                                    }
+                                }
+                            } catch (jsonEx: Exception) {
+                                Log.w("EcoRepository", "JSON parsing failed, trying text extraction", jsonEx)
+                            }
+                        }
+                        
+                        // Treat as raw text or stream
+                        val cleaned = cleanStreamOrText(rawResponse)
+                        if (cleaned.isNotBlank()) {
+                            Log.i("EcoRepository", "Successfully read cleaned stream/raw text from: ${endpoint.urlSuffix}")
+                            return@withContext cleaned
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.w("EcoRepository", "Vercel endpoint ${endpoint.urlSuffix} failed: ${e.message}")
+            }
+        }
+
+        // 2. Fall back to standard Google APIs Gemini Service directly if Vercel failed/unconfigured
         try {
-            Log.d("EcoRepository", "Attempting standard Googleapis Gemini route...")
+            Log.d("EcoRepository", "Falling back to standard Googleapis Gemini route...")
             val contents = mutableListOf<GeminiContent>()
             chatHistory.takeLast(8).forEach { entry ->
                 contents.add(GeminiContent(parts = listOf(GeminiPart(text = entry.text))))
@@ -150,14 +254,14 @@ class EcoRepository(
             val response = RetrofitClient.service.generateContent(resolvedGeminiKey, request)
             val reply = response.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
             if (!reply.isNullOrBlank()) {
-                Log.i("EcoRepository", "Standard Googleapis Gemini reply received successfully!")
-                return@withContext reply
+                 Log.i("EcoRepository", "Standard Googleapis Gemini reply received successfully!")
+                 return@withContext reply
             }
         } catch (e: Exception) {
             Log.e("EcoRepository", "Standard Googleapis Gemini route failed", e)
         }
 
-        // 4. OFFLINE SIMULATED FALLBACK
+        // 3. Fall back to offline simulated response
         Log.w("EcoRepository", "All AI network attempts offline or failed, using simulation.")
         return@withContext getOfflineSimulatedResponse(userInput, detectedLang)
     }

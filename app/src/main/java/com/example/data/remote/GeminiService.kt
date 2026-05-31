@@ -9,6 +9,7 @@ import retrofit2.http.Body
 import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Query
+import retrofit2.http.Url
 import java.util.concurrent.TimeUnit
 
 @JsonClass(generateAdapter = true)
@@ -75,6 +76,15 @@ interface OpenAiApiService {
     ): OpenAiResponse
 }
 
+interface GenericVercelApiService {
+    @POST
+    suspend fun postJson(
+        @Url url: String,
+        @Header("Authorization") authHeader: String?,
+        @Body body: okhttp3.RequestBody
+    ): okhttp3.ResponseBody
+}
+
 object RetrofitClient {
     private const val BASE_URL = "https://generativelanguage.googleapis.com/"
     private const val VERCEL_BASE_URL = "https://open-theta-snowy.vercel.app/"
@@ -110,5 +120,13 @@ object RetrofitClient {
             .addConverterFactory(MoshiConverterFactory.create())
             .build()
             .create(OpenAiApiService::class.java)
+    }
+
+    val genericVercelService: GenericVercelApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(VERCEL_BASE_URL)
+            .client(okHttpClient)
+            .build()
+            .create(GenericVercelApiService::class.java)
     }
 }
