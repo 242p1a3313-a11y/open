@@ -46,7 +46,8 @@ fun DashboardScreen(viewModel: EcoViewModel) {
     val speakOut: (String, String) -> Unit = { text, lang ->
         if (ttsInstance == null && !ttsInitFailed) {
             try {
-                ttsInstance = TextToSpeech(context.applicationContext) { status ->
+                var tts: TextToSpeech? = null
+                tts = TextToSpeech(context.applicationContext) { status ->
                     if (status == TextToSpeech.SUCCESS) {
                         try {
                             val locale = when (lang) {
@@ -54,8 +55,8 @@ fun DashboardScreen(viewModel: EcoViewModel) {
                                 "Telugu" -> Locale("te", "IN")
                                 else -> Locale("en", "IN")
                             }
-                            ttsInstance?.language = locale
-                            ttsInstance?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "PrakritiVoiceRef")
+                            tts?.language = locale
+                            tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "PrakritiVoiceRef")
                         } catch (ex: Exception) {
                             android.util.Log.e("EcoTTS", "TTS Settings error", ex)
                         }
@@ -63,6 +64,7 @@ fun DashboardScreen(viewModel: EcoViewModel) {
                         ttsInitFailed = true
                     }
                 }
+                ttsInstance = tts
             } catch (e: Exception) {
                 android.util.Log.e("EcoTTS", "TTS Initialization failed", e)
                 ttsInitFailed = true
@@ -82,7 +84,7 @@ fun DashboardScreen(viewModel: EcoViewModel) {
         }
     }
 
-    DisposableEffect(Unit) {
+    DisposableEffect(ttsInstance) {
         onDispose {
             try {
                 ttsInstance?.shutdown()
