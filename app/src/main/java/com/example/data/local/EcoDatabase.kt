@@ -55,7 +55,7 @@ abstract class EcoDatabase : RoomDatabase() {
 
         fun getDatabase(context: android.content.Context): EcoDatabase {
             return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
+                val instance = INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
                     EcoDatabase::class.java,
                     "eco_friend_database"

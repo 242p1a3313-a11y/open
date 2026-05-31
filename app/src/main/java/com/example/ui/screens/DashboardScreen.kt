@@ -38,33 +38,58 @@ fun DashboardScreen(viewModel: EcoViewModel) {
     val activeTab by viewModel.activeTab.collectAsState()
     val preferredLanguage by viewModel.selectedLanguage.collectAsState()
 
-    // Initialize Android TextToSpeech for PrakritiMitra voice output out-loud!
+    // Initialize Android TextToSpeech lazily & safely to prevent background thread binding crashes on unsupported systems.
     val context = LocalContext.current
-    val tts = remember {
-        var textToSpeech: TextToSpeech? = null
-        textToSpeech = TextToSpeech(context) { status ->
-            if (status == TextToSpeech.SUCCESS) {
-                textToSpeech?.language = Locale("en", "IN")
+    var ttsInstance by remember { mutableStateOf<TextToSpeech?>(null) }
+    var ttsInitFailed by remember { mutableStateOf(false) }
+
+    val speakOut: (String, String) -> Unit = { text, lang ->
+        if (ttsInstance == null && !ttsInitFailed) {
+            try {
+                ttsInstance = TextToSpeech(context.applicationContext) { status ->
+                    if (status == TextToSpeech.SUCCESS) {
+                        try {
+                            val locale = when (lang) {
+                                "Hindi" -> Locale("hi", "IN")
+                                "Telugu" -> Locale("te", "IN")
+                                else -> Locale("en", "IN")
+                            }
+                            ttsInstance?.language = locale
+                            ttsInstance?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "PrakritiVoiceRef")
+                        } catch (ex: Exception) {
+                            android.util.Log.e("EcoTTS", "TTS Settings error", ex)
+                        }
+                    } else {
+                        ttsInitFailed = true
+                    }
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("EcoTTS", "TTS Initialization failed", e)
+                ttsInitFailed = true
+            }
+        } else {
+            try {
+                val locale = when (lang) {
+                    "Hindi" -> Locale("hi", "IN")
+                    "Telugu" -> Locale("te", "IN")
+                    else -> Locale("en", "IN")
+                }
+                ttsInstance?.language = locale
+                ttsInstance?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "PrakritiVoiceRef")
+            } catch (ex: Exception) {
+                android.util.Log.e("EcoTTS", "TTS Speak failed", ex)
             }
         }
-        textToSpeech
     }
 
     DisposableEffect(Unit) {
         onDispose {
-            tts?.shutdown()
+            try {
+                ttsInstance?.shutdown()
+            } catch (e: java.lang.Exception) {
+                android.util.Log.e("EcoTTS", "TTS Shutdown failed", e)
+            }
         }
-    }
-
-    // Dynamic Locale switcher based on active reading language
-    val speakOut: (String, String) -> Unit = { text, lang ->
-        val locale = when (lang) {
-            "Hindi" -> Locale("hi", "IN")
-            "Telugu" -> Locale("te", "IN")
-            else -> Locale("en", "IN")
-        }
-        tts?.language = locale
-        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "PrakritiVoiceRef")
     }
 
     BackgroundParticles {
