@@ -6,6 +6,7 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Query
 import java.util.concurrent.TimeUnit
@@ -44,8 +45,39 @@ interface GeminiApiService {
     ): GeminiResponse
 }
 
+@JsonClass(generateAdapter = true)
+data class OpenAiMessage(
+    @Json(name = "role") val role: String,
+    @Json(name = "content") val content: String
+)
+
+@JsonClass(generateAdapter = true)
+data class OpenAiRequest(
+    @Json(name = "model") val model: String,
+    @Json(name = "messages") val messages: List<OpenAiMessage>
+)
+
+@JsonClass(generateAdapter = true)
+data class OpenAiChoice(
+    @Json(name = "message") val message: OpenAiMessage?
+)
+
+@JsonClass(generateAdapter = true)
+data class OpenAiResponse(
+    @Json(name = "choices") val choices: List<OpenAiChoice>?
+)
+
+interface OpenAiApiService {
+    @POST("v1/chat/completions")
+    suspend fun getChatCompletion(
+        @Header("Authorization") authHeader: String,
+        @Body request: OpenAiRequest
+    ): OpenAiResponse
+}
+
 object RetrofitClient {
     private const val BASE_URL = "https://generativelanguage.googleapis.com/"
+    private const val VERCEL_BASE_URL = "https://open-theta-snowy.vercel.app/"
 
     private val okHttpClient = OkHttpClient.Builder()
         .connectTimeout(60, TimeUnit.SECONDS)
@@ -60,5 +92,23 @@ object RetrofitClient {
             .addConverterFactory(MoshiConverterFactory.create())
             .build()
             .create(GeminiApiService::class.java)
+    }
+
+    val vercelGeminiService: GeminiApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(VERCEL_BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(MoshiConverterFactory.create())
+            .build()
+            .create(GeminiApiService::class.java)
+    }
+
+    val vercelOpenAiService: OpenAiApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(VERCEL_BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(MoshiConverterFactory.create())
+            .build()
+            .create(OpenAiApiService::class.java)
     }
 }

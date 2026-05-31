@@ -59,28 +59,19 @@ class EcoRepository(
         detectedLang: String,
         chatHistory: List<ChatEntry>
     ): String = withContext(Dispatchers.IO) {
-        val apiKey = try {
-            BuildConfig.GEMINI_API_KEY
+        val resolvedGeminiKey = try {
+            val key = BuildConfig.GEMINI_API_KEY
+            if (key.isNullOrBlank() || key == "MY_GEMINI_API_KEY") "plantTest_key" else key
         } catch (e: Exception) {
-            ""
+            "plantTest_key"
         }
 
-        if (apiKey.isEmpty() || apiKey == "MY_GEMINI_API_KEY") {
-            Log.w("EcoRepository", "Gemini API key is blank or placeholder, using offline simulated response.")
-            return@withContext getOfflineSimulatedResponse(userInput, detectedLang)
+        val resolvedOpenAiKey = try {
+            val key = BuildConfig.OPENAI_API_KEY
+            if (key.isNullOrBlank() || key == "My_Test_Key") "plantTest_key" else key
+        } catch (e: Exception) {
+            "plantTest_key"
         }
-
-        // Construct history contents for Gemini API:
-        // Filter out very old entries to keep within constraints
-        val limitedHistory = chatHistory.takeLast(10)
-        val contents = mutableListOf<GeminiContent>()
-        
-        limitedHistory.forEach { entry ->
-            contents.add(GeminiContent(parts = listOf(GeminiPart(text = entry.text))))
-        }
-        
-        // Append user's current message
-        contents.add(GeminiContent(parts = listOf(GeminiPart(text = userInput))))
 
         val systemPrompt = """
             You are PrakritiMitra, an EcoFriend student-focused AI companion.
@@ -94,23 +85,81 @@ class EcoRepository(
             6. Keep answers concise, clear, and relevant.
         """.trimIndent()
 
-        val request = GeminiRequest(
-            contents = contents,
-            systemInstruction = GeminiContent(parts = listOf(GeminiPart(text = systemPrompt)))
-        )
-
+        // 1. TRY VERCEL OpenAI ROUTE (Preferred, as user specified Vercel + OpenAI key)
         try {
-            val response = RetrofitClient.service.generateContent(apiKey, request)
-            val reply = response.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
+            Log.d("EcoRepository", "Attempting Vercel OpenAI route...")
+            val messages = mutableListOf<com.example.data.remote.OpenAiMessage>()
+            messages.add(com.example.data.remote.OpenAiMessage("system", systemPrompt))
+            chatHistory.takeLast(8).forEach { entry ->
+                val role = if (entry.sender == "user") "user" else "assistant"
+                messages.add(com.example.data.remote.OpenAiMessage(role, entry.text))
+            }
+            messages.add(com.example.data.remote.OpenAiMessage("user", userInput))
+
+            val request = com.example.data.remote.OpenAiRequest(
+                model = "gpt-3.5-turbo",
+                messages = messages
+            )
+            val authHeader = "Bearer $resolvedOpenAiKey"
+            val response = RetrofitClient.vercelOpenAiService.getChatCompletion(authHeader, request)
+            val reply = response.choices?.firstOrNull()?.message?.content
             if (!reply.isNullOrBlank()) {
+                Log.i("EcoRepository", "Vercel OpenAI routed reply received successfully!")
                 return@withContext reply
-            } else {
-                return@withContext getOfflineSimulatedResponse(userInput, detectedLang)
             }
         } catch (e: Exception) {
-            Log.e("EcoRepository", "Network call failed, using offline simulation fallback", e)
-            return@withContext getOfflineSimulatedResponse(userInput, detectedLang)
+            Log.w("EcoRepository", "Vercel OpenAI route failed/unsupported: ${e.message}")
         }
+
+        // 2. TRY VERCEL GEMINI ROUTE
+        try {
+            Log.d("EcoRepository", "Attempting Vercel Gemini route...")
+            val contents = mutableListOf<GeminiContent>()
+            chatHistory.takeLast(8).forEach { entry ->
+                contents.add(GeminiContent(parts = listOf(GeminiPart(text = entry.text))))
+            }
+            contents.add(GeminiContent(parts = listOf(GeminiPart(text = userInput))))
+
+            val request = GeminiRequest(
+                contents = contents,
+                systemInstruction = GeminiContent(parts = listOf(GeminiPart(text = systemPrompt)))
+            )
+            val response = RetrofitClient.vercelGeminiService.generateContent(resolvedGeminiKey, request)
+            val reply = response.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
+            if (!reply.isNullOrBlank()) {
+                Log.i("EcoRepository", "Vercel Gemini routed reply received successfully!")
+                return@withContext reply
+            }
+        } catch (e: Exception) {
+            Log.w("EcoRepository", "Vercel Gemini route failed: ${e.message}")
+        }
+
+        // 3. TRY STANDARD GOOGLEAPIS GEMINI SERVICE
+        try {
+            Log.d("EcoRepository", "Attempting standard Googleapis Gemini route...")
+            val contents = mutableListOf<GeminiContent>()
+            chatHistory.takeLast(8).forEach { entry ->
+                contents.add(GeminiContent(parts = listOf(GeminiPart(text = entry.text))))
+            }
+            contents.add(GeminiContent(parts = listOf(GeminiPart(text = userInput))))
+
+            val request = GeminiRequest(
+                contents = contents,
+                systemInstruction = GeminiContent(parts = listOf(GeminiPart(text = systemPrompt)))
+            )
+            val response = RetrofitClient.service.generateContent(resolvedGeminiKey, request)
+            val reply = response.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
+            if (!reply.isNullOrBlank()) {
+                Log.i("EcoRepository", "Standard Googleapis Gemini reply received successfully!")
+                return@withContext reply
+            }
+        } catch (e: Exception) {
+            Log.e("EcoRepository", "Standard Googleapis Gemini route failed", e)
+        }
+
+        // 4. OFFLINE SIMULATED FALLBACK
+        Log.w("EcoRepository", "All AI network attempts offline or failed, using simulation.")
+        return@withContext getOfflineSimulatedResponse(userInput, detectedLang)
     }
 
     /**
