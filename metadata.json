@@ -1,0 +1,6 @@
+{
+  "name": "EcoFriend",
+  "description": "EcoFriend: A student-focused, gamified eco-companion featuring advanced trilingual command interaction (English, Hindi, Telugu), AI plant recommendations, disease scan diagnostics, and advanced security login.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
