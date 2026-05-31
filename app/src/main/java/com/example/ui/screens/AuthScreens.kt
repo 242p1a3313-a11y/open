@@ -62,11 +62,14 @@ fun AuthNavigator(viewModel: EcoViewModel) {
 }
 
 // Natural Tones Aesthetic Palette
-val TextPrimary = Color(0xFF1A1C18)
-val TextSecondary = Color(0xFF3E4A3B)
-val BrandGreen = Color(0xFF386B41)
-val BorderSage = Color(0xFFDDE5DB)
-val TintCap = Color(0xFFD7E8D3)
+val TextPrimary = Color(0xFF191C19)
+val TextSecondary = Color(0xFF404940)
+val BrandGreen = Color(0xFF16A34A) // #16A34A primary green action text/icon
+val PrimaryGreen = Color(0xFF22C55E) // #22C55E primary brand green
+val AccentYellow = Color(0xFFFACC15) // #FACC15 attention accent yellow
+val BorderSage = Color(0xFFBBF7D0) // light green border sage
+val TintCap = Color(0xFFDCFCE7) // green tint container background
+val BgFreshMint = Color(0xFFF0FDF4) // light minted background color
 
 @Composable
 fun customTextFieldColors() = OutlinedTextFieldDefaults.colors(

@@ -106,8 +106,46 @@ class EcoViewModel(application: Application) : AndroidViewModel(application) {
     private val _scanTreatment = MutableStateFlow("")
     val scanTreatment: StateFlow<String> = _scanTreatment
 
+    // 1. Smart Plantation recommendation state
+    val recLocation = MutableStateFlow("")
+    val recSeason = MutableStateFlow("Summer")
+    val recSoil = MutableStateFlow("Loamy")
+    val recSpace = MutableStateFlow("Medium Bed")
+    private val _recResult = MutableStateFlow<Map<String, String>?>(null)
+    val recResult: StateFlow<Map<String, String>?> = _recResult
+    private val _isRecLoading = MutableStateFlow(false)
+    val isRecLoading: StateFlow<Boolean> = _isRecLoading
+
+    // 2. Soil Intelligence state
+    val soilType = MutableStateFlow("Loam")
+    private val _soilResult = MutableStateFlow<Map<String, String>?>(null)
+    val soilResult: StateFlow<Map<String, String>?> = _soilResult
+    private val _isSoilLoading = MutableStateFlow(false)
+    val isSoilLoading: StateFlow<Boolean> = _isSoilLoading
+
+    // 3. Water calculation state
+    val waterPlantType = MutableStateFlow("Organic Tulsi")
+    val waterWeather = MutableStateFlow("Sunny")
+    private val _waterResult = MutableStateFlow<String>("")
+    val waterResult: StateFlow<String> = _waterResult
+
+    // 4. Climate Suitability state
+    val climateTemp = MutableStateFlow("32")
+    val climateRain = MutableStateFlow("150")
+    val climateHumidity = MutableStateFlow("60")
+    private val _climateResult = MutableStateFlow<String>("")
+    val climateResult: StateFlow<String> = _climateResult
+
+    // 5. Growth Prediction AI state
+    val growthPlantName = MutableStateFlow("Organic Tulsi")
+    val growthDays = MutableStateFlow("30")
+    private val _growthResult = MutableStateFlow<Map<String, String>?>(null)
+    val growthResult: StateFlow<Map<String, String>?> = _growthResult
+    private val _isGrowthLoading = MutableStateFlow(false)
+    val isGrowthLoading: StateFlow<Boolean> = _isGrowthLoading
+
     // Active Dashboard Tab
-    private val _activeTab = MutableStateFlow("Mitra Chat") // "Mitra Chat", "Scan Diagnostic", "My Garden", "Achievements"
+    private val _activeTab = MutableStateFlow("Home") // "Home", "Plants", "Scan", "Chat", "Profile"
     val activeTab: StateFlow<String> = _activeTab
 
     init {
@@ -378,6 +416,42 @@ class EcoViewModel(application: Application) : AndroidViewModel(application) {
         chatInput.value = ""
         val userLang = detectLanguage(message)
 
+        val cleanMsg = message.trim().lowercase().removeSuffix(".")
+        val isSuitableCheck = cleanMsg.contains("suitable plants") || 
+            cleanMsg.contains("show suitable plants") || 
+            cleanMsg.contains("उपयुक्त पौधे दिखाओ") || 
+            cleanMsg.contains("సరిపోయే మొక్కలు చూపించు") ||
+            cleanMsg.contains("మొక్కలు చూపించు")
+
+        if (isSuitableCheck) {
+            _activeTab.value = "Plants"
+            viewModelScope.launch {
+                val userChat = ChatEntry(
+                    sender = "user",
+                    text = message,
+                    detectedLanguage = userLang
+                )
+                repository.insertChat(userChat)
+                
+                val redirectMsg = when (userLang) {
+                    "Hindi" -> "🌿 जी हुज़ूर! आपकी आवाज़ की कमान को माना गया है। आपको उपयुक्त पौधे की सिफारिशों वाले अनुभाग (Plants) में निर्देशित कर दिया गया है। कृपया फ़ॉर्म भरकर सही पौधे का चुनाव करें।"
+                    "Telugu" -> "🌿 చిత్తం! మీ వాయిస్ కమాండ్ ప్రకారం సంపూర్ణ మొక్కల సిఫార్సు విభాగంలో (Plants) మిమ్మల్ని చేర్చాను. దయచేసి వివరాలు నింపండి."
+                    else -> "🌿 Understood! Processing your voice command. Redirecting you to the Smart Plantation Recommendation page under the Plants tab."
+                }
+                
+                val aiChat = ChatEntry(
+                    sender = "prakriti_mitra",
+                    text = redirectMsg,
+                    detectedLanguage = userLang
+                )
+                repository.insertChat(aiChat)
+                
+                val currentPoints = sessionState.value?.ecoPoints ?: 0
+                repository.updateEcoPoints(currentPoints + 20)
+            }
+            return
+        }
+
         viewModelScope.launch {
             // First save user message in chat entries database
             val userChat = ChatEntry(
@@ -536,6 +610,184 @@ class EcoViewModel(application: Application) : AndroidViewModel(application) {
                     repository.updateBadges(badgesList.joinToString(","))
                 }
             }
+        }
+    }
+
+    fun triggerSmartRecommendation() {
+        viewModelScope.launch {
+            _isRecLoading.value = true
+            kotlinx.coroutines.delay(1200)
+            val loc = recLocation.value.ifBlank { "Balcony Studio" }
+            val seas = recSeason.value
+            val soil = recSoil.value
+            val space = recSpace.value
+
+            val plantResult = when {
+                seas == "Summer" && soil == "Sandy" -> mapOf(
+                    "plant" to "Aloe Vera 🌵",
+                    "growth" to "60 - 90 Days",
+                    "maintenance" to "Low (Water weekly)",
+                    "benefits" to "Air purification, skin healing, and low water strain."
+                )
+                seas == "Summer" -> mapOf(
+                    "plant" to "Organic Tulsi 🌱",
+                    "growth" to "45 - 60 Days",
+                    "maintenance" to "Medium (Keep soil moist)",
+                    "benefits" to "High Oxygen yield, medicinal property herb, mosquito repelling."
+                )
+                seas == "Winter" -> mapOf(
+                    "plant" to "Golden Marigold 🌼",
+                    "growth" to "50 - 70 Days",
+                    "maintenance" to "Medium (Needs daily sun)",
+                    "benefits" to "Beautification, pollinators magnet, and organic pest repelling."
+                )
+                seas == "Monsoon" || seas == "Rainy" -> mapOf(
+                    "plant" to "Vibrant Mint Leaf 🌿",
+                    "growth" to "30 - 45 Days",
+                    "maintenance" to "Low (Thrives in wet soil)",
+                    "benefits" to "Culinary uses, delicious mild aroma, fast propagation."
+                )
+                else -> mapOf(
+                    "plant" to "Neem Tree Sapling 🌳",
+                    "growth" to "120 - 180 Days (Early stage)",
+                    "maintenance" to "Low (Highly resilient)",
+                    "benefits" to "Gigantic carbon sequestration, natural insect pesticide, cooling shade."
+                )
+            }
+            _recResult.value = plantResult
+            _isRecLoading.value = false
+        }
+    }
+
+    fun triggerSoilIntelligence() {
+        viewModelScope.launch {
+            _isSoilLoading.value = true
+            kotlinx.coroutines.delay(1000)
+            val st = soilType.value
+            val result = when (st) {
+                "Clayey" -> mapOf(
+                    "score" to "65/100 ⚠️ Heavy Clay",
+                    "nutrients" to "Nitrogen (Medium), Phosphorus (Low), Potassium (High)",
+                    "fertilizer" to "Mix Organic Vermicompost with sand to loosen soil structure.",
+                    "tips" to "Water slowly to prevent pooling. Great moisture retention but poor aeration."
+                )
+                "Sandy" -> mapOf(
+                    "score" to "58/100 ⚠️ Low Retentive",
+                    "nutrients" to "Nitrogen (Very Low), Phosphorus (Low), Potassium (Low)",
+                    "fertilizer" to "Add thick layers of decomposed cow manure or peat and leaf mold.",
+                    "tips" to "Incorporate mulching to avoid swift moisture loss. Add nutrients frequently."
+                )
+                "Loamy", "Loam", "Loam/Garden" -> mapOf(
+                    "score" to "92/100  Highly Fertile!",
+                    "nutrients" to "Nitrogen (High), Phosphorus (Medium), Potassium (High)",
+                    "fertilizer" to "Light compost dressing or organic seaweed extract once a month.",
+                    "tips" to "Ideal garden soil! Balanced drainage and nutrition retention."
+                )
+                "Black Cotton" -> mapOf(
+                    "score" to "80/100  Highly Nutrient Rich",
+                    "nutrients" to "Nitrogen (Low), Phosphorus (Medium), Calcium & Iron (High)",
+                    "fertilizer" to "Use nitrogen-rich organic oilcakes (Neem Cake) and organic fertilizers.",
+                    "tips" to "Provides deep moisture retention. Aerate soil occasionally to let roots breathe."
+                )
+                else -> mapOf(
+                    "score" to "75/100 👍 Standard Soil",
+                    "nutrients" to "Nitrogen (Medium), Phosphorus (Medium), Potassium (Medium)",
+                    "fertilizer" to "Apply dry compost manure every 3 weeks to keep nutrient flow stable.",
+                    "tips" to "Rake periodically to enhance top surface oxygen levels."
+                )
+            }
+            _soilResult.value = result
+            _isSoilLoading.value = false
+        }
+    }
+
+    fun triggerWaterCalculation() {
+        val type = waterPlantType.value.lowercase()
+        val weather = waterWeather.value
+        val amount = when {
+            type.contains("tulsi") || type.contains("basil") -> if (weather == "Sunny") 350 else 200
+            type.contains("mint") -> if (weather == "Sunny") 400 else 250
+            type.contains("neem") -> if (weather == "Sunny") 600 else 300
+            type.contains("rose") -> if (weather == "Sunny") 500 else 300
+            else -> if (weather == "Sunny") 450 else 250
+        }
+        val reminder = when (weather) {
+            "Sunny" -> "☀️ Peak Heat Alert: Soil will evaporate water 40% faster. Water early in the morning (before 9 AM) or evening (after 5 PM) to protect roots."
+            "Cloudy" -> "☁️ Sky Covered: Low evaporation rates. Do second watering check only if topmost soil is dry. Saves water!"
+            "Rainy" -> "🌧️ Natural Rains Active: Skip watering entirely today. Move balcony plants outside to collect clean, chemical-free rainwater!"
+            else -> "🌤️ Pleasant Day: Standard moisture rate. Give one normal splash today."
+        }
+        _waterResult.value = "🌱 **Daily Water Calculation Result:**\n" +
+                "• Target Plant: ${waterPlantType.value}\n" +
+                "• Recommended Amount: **$amount ml 💧**\n\n" +
+                "**Weather Reminders:**\n" +
+                "$reminder\n\n" +
+                "**Eco Water Tips:**\n" +
+                "1. Use left-over water from washing rice/veggies to enrich soil with natural starches!\n" +
+                "2. Try drip watering by keeping a bottle with a pin-hole nearby."
+    }
+
+    fun triggerClimateAnalysis() {
+        val tempVal = climateTemp.value.toIntOrNull() ?: 30
+        val rainVal = climateRain.value.toIntOrNull() ?: 120
+        val humVal = climateHumidity.value.toIntOrNull() ?: 60
+
+        val tempFeedback = when {
+            tempVal > 38 -> "❌ Extreme Heat ($tempVal°C): High risk of transpiration shock!"
+            tempVal in 20..35 -> "✅ Ideal warm temperature range for tropical/subtropical herbs."
+            else -> "⚠️ Mild Cool ($tempVal°C): Plant metabolic process slows down."
+        }
+        val rainFeedback = when {
+            rainVal > 250 -> "⚠️ Excess Rain ($rainVal mm/mon): Avoid clayey soils, roots might drown."
+            rainVal in 80..200 -> "✅ Balanced Rainfall: Ideal natural irrigation levels."
+            else -> "⚠️ Arid Rain ($rainVal mm/mon): Relies completely on manual irrigation."
+        }
+        val humidityFeedback = when {
+            humVal > 80 -> "⚠️ High Humidity ($humVal%): Excellent for ferns but increases fungal risk."
+            humVal < 40 -> "⚠️ Dry Air ($humVal%): Accelerates leaf drying. Mist plants occasionally."
+            else -> "✅ Perfect humidity index ($humVal%) for general plant breathing."
+        }
+
+        _climateResult.value = """
+            🌡️ **Climate Suitability Summary:**
+            • $tempFeedback
+            • $rainFeedback
+            • $humidityFeedback
+            
+            🗓️ **Season Action Plan:**
+            Current combination represents a ${if (tempVal in 20..35 && humVal in 40..80) "Highly Friendly" else "Challenging"} atmosphere. Plan water supply meticulously!
+        """.trimIndent()
+    }
+
+    fun triggerGrowthPrediction() {
+        viewModelScope.launch {
+            _isGrowthLoading.value = true
+            kotlinx.coroutines.delay(1200)
+            val plant = growthPlantName.value
+            val daysStr = growthDays.value.toIntOrNull() ?: 30
+            
+            val rate = when {
+                plant.lowercase().contains("tulsi") -> 0.7f
+                plant.lowercase().contains("neem") -> 1.2f
+                plant.lowercase().contains("mint") -> 0.9f
+                else -> 0.8f
+            }
+            val height = (daysStr * rate).coerceAtLeast(2.0f)
+            val stage = when {
+                daysStr < 10 -> "🌱 Seedling / Sprout Stage"
+                daysStr < 30 -> "🌿 Active Vegetative Growth"
+                daysStr < 60 -> "🌸 Flowering & Budding Stage"
+                else -> "🌳 Fully Mature / Harvest-Ready"
+            }
+            val yield = (height * 8.5f).toInt()
+            
+            _growthResult.value = mapOf(
+                "height" to String.format("%.1f cm 📏", height),
+                "stage" to stage,
+                "harvest" to "Estimated inside ${(90 - daysStr).coerceAtLeast(7)} days",
+                "yield" to "Estimated leaf harvest weight: ~${yield}g 🍃"
+            )
+            _isGrowthLoading.value = false
         }
     }
 
