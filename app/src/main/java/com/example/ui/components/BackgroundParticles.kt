@@ -19,11 +19,11 @@ import kotlin.math.sin
  */
 @Composable
 fun BackgroundParticles(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    // Beautiful nature gradient: Dark Jade to Rich Emerald Green
+    // Beautiful nature gradient: Misty forest morning to Linen Cream (Natural Tones)
     val gradientColors = listOf(
-        Color(0xFF0C2414), // Very deep dark forest green
-        Color(0xFF13381D), // Deep pine jade
-        Color(0xFF1E4D2B)  // Dark rich emerald
+        Color(0xFFE8EFE5), // Misty morning sage green (light)
+        Color(0xFFF8FAF6), // Clean cream linen (Natural Tones backdrop)
+        Color(0xFFF1F5F0)  // Soft linen green
     )
 
     // Animated phase for wave/particulate drifters
@@ -70,13 +70,13 @@ fun BackgroundParticles(modifier: Modifier = Modifier, content: @Composable () -
                 val shiftY = sin(pulseRad * 0.5f) * 40.dp.toPx()
 
                 drawCircle(
-                    color = Color(0x333CE675), // Energetic mint glow
+                    color = Color(0x1F386B41), // Gentle sage-green organic accent
                     radius = width * 0.5f,
                     center = Offset(width * 0.3f + shiftX, height * 0.2f + shiftY)
                 )
 
                 drawCircle(
-                    color = Color(0x22135926), // Soft jade shadow glow
+                    color = Color(0x14A8CDB0), // Calm background leaf glow
                     radius = width * 0.6f,
                     center = Offset(width * 0.8f - shiftX, height * 0.7f - shiftY)
                 )
@@ -90,7 +90,7 @@ fun BackgroundParticles(modifier: Modifier = Modifier, content: @Composable () -
 
                     // Draw organic particle bubble
                     drawCircle(
-                        color = Color(0xFF6CF097).copy(alpha = p.alpha),
+                        color = Color(0xFF386B41).copy(alpha = p.alpha * 0.4f),
                         radius = p.radius,
                         center = Offset(posX.toFloat(), posY.toFloat())
                     )
@@ -101,7 +101,7 @@ fun BackgroundParticles(modifier: Modifier = Modifier, content: @Composable () -
                     if (p.radius > 15f) {
                         rotate(degrees = pulseAnim * 0.2f + (p.xSeed * 360f), pivot = Offset(posX.toFloat(), posY.toFloat())) {
                             drawOval(
-                                color = Color(0x55B2FF59),
+                                color = Color(0x3DA8CDB0),
                                 topLeft = Offset((posX - leafSizeX / 2).toFloat(), (posY - leafSizeY / 2).toFloat()),
                                 size = androidx.compose.ui.geometry.Size(leafSizeX, leafSizeY)
                             )

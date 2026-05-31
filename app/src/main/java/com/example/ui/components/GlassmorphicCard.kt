@@ -27,12 +27,12 @@ fun GlassmorphicCard(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(cornerRadius))
-            // Semitransparent white background for high glass translucency
-            .background(Color(0x1AFFFFFF))
-            // Glass high-light sleek border
+            // Clean semi-translucent crisp white background for the Natural Tones aesthetic
+            .background(Color(0xF0FFFFFF))
+            // Sage-border clean color #DDE5DB
             .border(
                 width = 1.2.dp,
-                color = Color(0x3DFFFFFF),
+                color = Color(0xFFDDE5DB),
                 shape = RoundedCornerShape(cornerRadius)
             )
             .padding(padding),

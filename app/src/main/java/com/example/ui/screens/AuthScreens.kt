@@ -61,6 +61,24 @@ fun AuthNavigator(viewModel: EcoViewModel) {
     }
 }
 
+// Natural Tones Aesthetic Palette
+val TextPrimary = Color(0xFF1A1C18)
+val TextSecondary = Color(0xFF3E4A3B)
+val BrandGreen = Color(0xFF386B41)
+val BorderSage = Color(0xFFDDE5DB)
+val TintCap = Color(0xFFD7E8D3)
+
+@Composable
+fun customTextFieldColors() = OutlinedTextFieldDefaults.colors(
+    focusedTextColor = TextPrimary,
+    unfocusedTextColor = TextPrimary,
+    focusedBorderColor = BrandGreen,
+    unfocusedBorderColor = BorderSage,
+    cursorColor = BrandGreen,
+    focusedLabelColor = BrandGreen,
+    unfocusedLabelColor = TextSecondary
+)
+
 @Composable
 fun LoginScreen(viewModel: EcoViewModel) {
     val email by viewModel.loginEmail.collectAsState()
@@ -88,13 +106,13 @@ fun LoginScreen(viewModel: EcoViewModel) {
             Icon(
                 imageVector = Icons.Default.Favorite,
                 contentDescription = "App Logo",
-                tint = Color(0xFF6CF097),
+                tint = BrandGreen,
                 modifier = Modifier.size(32.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = "EcoFriend",
-                color = Color.White,
+                color = TextPrimary,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = 1.sp
@@ -103,7 +121,7 @@ fun LoginScreen(viewModel: EcoViewModel) {
 
         Text(
             text = "Welcome Back",
-            color = Color.LightGray,
+            color = TextSecondary,
             fontSize = 16.sp,
             modifier = Modifier.padding(top = 4.dp, bottom = 24.dp)
         )
@@ -121,14 +139,8 @@ fun LoginScreen(viewModel: EcoViewModel) {
                 OutlinedTextField(
                     value = email,
                     onValueChange = { viewModel.loginEmail.value = it },
-                    label = { Text("Email", color = Color.LightGray) },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = Color(0xFF6CF097),
-                        unfocusedBorderColor = Color(0x66FFFFFF),
-                        cursorColor = Color(0xFF6CF097)
-                    ),
+                    label = { Text("Email") },
+                    colors = customTextFieldColors(),
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("username_input"),
@@ -142,24 +154,18 @@ fun LoginScreen(viewModel: EcoViewModel) {
                 OutlinedTextField(
                     value = password,
                     onValueChange = { viewModel.loginPassword.value = it },
-                    label = { Text("Password", color = Color.LightGray) },
+                    label = { Text("Password") },
                     visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         IconButton(onClick = { showPassword = !showPassword }) {
                             Icon(
                                 imageVector = if (showPassword) Icons.Default.Lock else Icons.Default.Share,
                                 contentDescription = "Toggle password visibility",
-                                tint = Color.LightGray
+                                tint = TextSecondary
                             )
                         }
                     },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = Color(0xFF6CF097),
-                        unfocusedBorderColor = Color(0x66FFFFFF),
-                        cursorColor = Color(0xFF6CF097)
-                    ),
+                    colors = customTextFieldColors(),
                     modifier = Modifier.fillMaxWidth().testTag("password_input"),
                     singleLine = true
                 )
@@ -167,7 +173,7 @@ fun LoginScreen(viewModel: EcoViewModel) {
                 if (loginError.isNotBlank()) {
                     Text(
                         text = loginError,
-                        color = Color(0xFFFFB4AB),
+                        color = Color(0xFFBA1A1A),
                         fontSize = 13.sp,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(top = 10.dp)
@@ -180,7 +186,7 @@ fun LoginScreen(viewModel: EcoViewModel) {
                 Button(
                     onClick = { viewModel.performLogin() },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF2E7D32),
+                        containerColor = BrandGreen,
                         contentColor = Color.White
                     ),
                     shape = RoundedCornerShape(12.dp),
@@ -201,7 +207,7 @@ fun LoginScreen(viewModel: EcoViewModel) {
                 // Social SSO Connect Headers
                 Text(
                     text = "Continue with student portal",
-                    color = Color.LightGray,
+                    color = TextSecondary,
                     fontSize = 12.sp,
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
@@ -213,21 +219,21 @@ fun LoginScreen(viewModel: EcoViewModel) {
                     // Google SSO
                     OutlinedButton(
                         onClick = { viewModel.performSocialLogin("Google") },
-                        border = BorderStroke(1.dp, Color(0x3DFFFFFF)),
+                        border = BorderStroke(1.dp, BorderSage),
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.weight(1f).height(45.dp)
                     ) {
-                        Text("Google", color = Color.White, fontSize = 13.sp)
+                        Text("Google", color = TextPrimary, fontSize = 13.sp)
                     }
 
                     // Microsoft SSO (School Focused)
                     OutlinedButton(
                         onClick = { viewModel.performSocialLogin("Microsoft") },
-                        border = BorderStroke(1.dp, Color(0x3DFFFFFF)),
+                        border = BorderStroke(1.dp, BorderSage),
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.weight(1f).height(45.dp)
                     ) {
-                        Text("Microsoft", color = Color.White, fontSize = 13.sp)
+                        Text("Microsoft", color = TextPrimary, fontSize = 13.sp)
                     }
                 }
 
@@ -239,15 +245,16 @@ fun LoginScreen(viewModel: EcoViewModel) {
                         .fillMaxWidth()
                         .clickable { viewModel.phoneInput.value = ""; viewModel.navigateTo(EcoScreen.REGISTER_S3) }
                         .padding(vertical = 4.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0x11FFFFFF))
+                    colors = CardDefaults.cardColors(containerColor = TintCap),
+                    border = BorderStroke(0.8.dp, BorderSage)
                 ) {
                     Row(
                         modifier = Modifier.padding(12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Default.Phone, contentDescription = "OTP Login", tint = Color(0xFF6CF097))
+                        Icon(Icons.Default.Phone, contentDescription = "OTP Login", tint = BrandGreen)
                         Spacer(modifier = Modifier.width(12.dp))
-                        Text("Alternative: Phone OTP Login", color = Color.White, fontSize = 13.sp)
+                        Text("Alternative: Phone OTP Login", color = TextPrimary, fontSize = 13.sp)
                     }
                 }
             }
@@ -257,7 +264,7 @@ fun LoginScreen(viewModel: EcoViewModel) {
             onClick = { viewModel.navigateTo(EcoScreen.REGISTER_S1) },
             modifier = Modifier.padding(top = 16.dp)
         ) {
-            Text("Don't have an account? Sign Up", color = Color(0xFF6CF097), fontWeight = FontWeight.Bold)
+            Text("Don't have an account? Sign Up", color = BrandGreen, fontWeight = FontWeight.Bold)
         }
 
         Spacer(modifier = Modifier.height(40.dp))
@@ -274,10 +281,10 @@ fun RegisterS1Screen(viewModel: EcoViewModel) {
 
     val passStrength = viewModel.checkPasswordStrength(password)
     val meterColor = when (passStrength) {
-        "Weak" -> Color(0xFFFF5252)
-        "Medium" -> Color(0xFFFFAB40)
-        "Strong" -> Color(0xFFFFEE58)
-        "Very Strong" -> Color(0xFF69F0AE)
+        "Weak" -> Color(0xFFBA1A1A)
+        "Medium" -> Color(0xFFD38D10)
+        "Strong" -> Color(0xFF386B41)
+        "Very Strong" -> Color(0xFF1B5E20)
         else -> Color.DarkGray
     }
 
@@ -291,13 +298,13 @@ fun RegisterS1Screen(viewModel: EcoViewModel) {
     ) {
         Text(
             text = "Create Student Account",
-            color = Color.White,
+            color = TextPrimary,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold
         )
         Text(
             text = "Step 1: Credential Setup",
-            color = Color.LightGray,
+            color = TextSecondary,
             fontSize = 14.sp,
             modifier = Modifier.padding(top = 4.dp, bottom = 20.dp)
         )
@@ -307,13 +314,8 @@ fun RegisterS1Screen(viewModel: EcoViewModel) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { viewModel.regName.value = it },
-                    label = { Text("Full Name", color = Color.LightGray) },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = Color(0xFF6CF097),
-                        unfocusedBorderColor = Color(0x66FFFFFF)
-                    ),
+                    label = { Text("Full Name") },
+                    colors = customTextFieldColors(),
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -323,13 +325,8 @@ fun RegisterS1Screen(viewModel: EcoViewModel) {
                 OutlinedTextField(
                     value = email,
                     onValueChange = { viewModel.regEmail.value = it },
-                    label = { Text("Email Address", color = Color.LightGray) },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = Color(0xFF6CF097),
-                        unfocusedBorderColor = Color(0x66FFFFFF)
-                    ),
+                    label = { Text("Email Address") },
+                    colors = customTextFieldColors(),
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
@@ -340,13 +337,8 @@ fun RegisterS1Screen(viewModel: EcoViewModel) {
                 OutlinedTextField(
                     value = password,
                     onValueChange = { viewModel.regPassword.value = it },
-                    label = { Text("Password", color = Color.LightGray) },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = Color(0xFF6CF097),
-                        unfocusedBorderColor = Color(0x66FFFFFF)
-                    ),
+                    label = { Text("Password") },
+                    colors = customTextFieldColors(),
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     visualTransformation = PasswordVisualTransformation()
@@ -360,7 +352,7 @@ fun RegisterS1Screen(viewModel: EcoViewModel) {
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text("Strength: $passStrength", color = Color.LightGray, fontSize = 12.sp)
+                            Text("Strength: $passStrength", color = TextSecondary, fontSize = 12.sp)
                         }
                         Spacer(modifier = Modifier.height(4.dp))
                         Box(
@@ -368,7 +360,7 @@ fun RegisterS1Screen(viewModel: EcoViewModel) {
                                 .fillMaxWidth()
                                 .height(6.dp)
                                 .clip(RoundedCornerShape(3.dp))
-                                .background(Color(0x33FFFFFF))
+                                .background(BorderSage)
                         ) {
                             val multiplier = when (passStrength) {
                                 "Weak" -> 0.25f
@@ -392,13 +384,8 @@ fun RegisterS1Screen(viewModel: EcoViewModel) {
                 OutlinedTextField(
                     value = confirmPassword,
                     onValueChange = { viewModel.regConfirmPassword.value = it },
-                    label = { Text("Confirm Password", color = Color.LightGray) },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = Color(0xFF6CF097),
-                        unfocusedBorderColor = Color(0x66FFFFFF)
-                    ),
+                    label = { Text("Confirm Password") },
+                    colors = customTextFieldColors(),
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     visualTransformation = PasswordVisualTransformation()
@@ -407,7 +394,7 @@ fun RegisterS1Screen(viewModel: EcoViewModel) {
                 if (s1Error.isNotBlank()) {
                     Text(
                         text = s1Error,
-                        color = Color(0xFFFFB4AB),
+                        color = Color(0xFFBA1A1A),
                         fontSize = 13.sp,
                         modifier = Modifier.padding(top = 10.dp)
                     )
@@ -417,11 +404,11 @@ fun RegisterS1Screen(viewModel: EcoViewModel) {
 
                 Button(
                     onClick = { viewModel.submitRegS1() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32)),
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandGreen),
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.fillMaxWidth().height(48.dp)
                 ) {
-                    Text("Next Step", fontWeight = FontWeight.Bold)
+                    Text("Next Step", fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
         }
@@ -430,7 +417,7 @@ fun RegisterS1Screen(viewModel: EcoViewModel) {
             onClick = { viewModel.navigateTo(EcoScreen.LOGIN) },
             modifier = Modifier.padding(top = 16.dp)
         ) {
-            Text("Back to Login", color = Color.White)
+            Text("Back to Login", color = BrandGreen)
         }
     }
 }
@@ -453,13 +440,13 @@ fun RegisterS2Screen(viewModel: EcoViewModel) {
     ) {
         Text(
             text = "Academic Details",
-            color = Color.White,
+            color = TextPrimary,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold
         )
         Text(
             text = "Step 2: School & Location Setup",
-            color = Color.LightGray,
+            color = TextSecondary,
             fontSize = 14.sp,
             modifier = Modifier.padding(top = 4.dp, bottom = 20.dp)
         )
@@ -469,13 +456,8 @@ fun RegisterS2Screen(viewModel: EcoViewModel) {
                 OutlinedTextField(
                     value = school,
                     onValueChange = { viewModel.regSchool.value = it },
-                    label = { Text("School / College Name", color = Color.LightGray) },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = Color(0xFF6CF097),
-                        unfocusedBorderColor = Color(0x66FFFFFF)
-                    ),
+                    label = { Text("School / College Name") },
+                    colors = customTextFieldColors(),
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -485,13 +467,8 @@ fun RegisterS2Screen(viewModel: EcoViewModel) {
                 OutlinedTextField(
                     value = cls,
                     onValueChange = { viewModel.regClass.value = it },
-                    label = { Text("Class / Grade", color = Color.LightGray) },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = Color(0xFF6CF097),
-                        unfocusedBorderColor = Color(0x66FFFFFF)
-                    ),
+                    label = { Text("Class / Grade") },
+                    colors = customTextFieldColors(),
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -502,13 +479,8 @@ fun RegisterS2Screen(viewModel: EcoViewModel) {
                     OutlinedTextField(
                         value = city,
                         onValueChange = { viewModel.regCity.value = it },
-                        label = { Text("City", color = Color.LightGray) },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            focusedBorderColor = Color(0xFF6CF097),
-                            unfocusedBorderColor = Color(0x66FFFFFF)
-                        ),
+                        label = { Text("City") },
+                        colors = customTextFieldColors(),
                         modifier = Modifier.weight(1f),
                         singleLine = true
                     )
@@ -516,13 +488,8 @@ fun RegisterS2Screen(viewModel: EcoViewModel) {
                     OutlinedTextField(
                         value = state,
                         onValueChange = { viewModel.regState.value = it },
-                        label = { Text("State", color = Color.LightGray) },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            focusedBorderColor = Color(0xFF6CF097),
-                            unfocusedBorderColor = Color(0x66FFFFFF)
-                        ),
+                        label = { Text("State") },
+                        colors = customTextFieldColors(),
                         modifier = Modifier.weight(1f),
                         singleLine = true
                     )
@@ -531,7 +498,7 @@ fun RegisterS2Screen(viewModel: EcoViewModel) {
                 if (s2Error.isNotBlank()) {
                     Text(
                         text = s2Error,
-                        color = Color(0xFFFFB4AB),
+                        color = Color(0xFFBA1A1A),
                         fontSize = 13.sp,
                         modifier = Modifier.padding(top = 10.dp)
                     )
@@ -541,11 +508,11 @@ fun RegisterS2Screen(viewModel: EcoViewModel) {
 
                 Button(
                     onClick = { viewModel.submitRegS2() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32)),
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandGreen),
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.fillMaxWidth().height(48.dp)
                 ) {
-                    Text("Next Step", fontWeight = FontWeight.Bold)
+                    Text("Next Step", fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
         }
@@ -556,7 +523,7 @@ fun RegisterS2Screen(viewModel: EcoViewModel) {
             onClick = { viewModel.navigateTo(EcoScreen.REGISTER_S1) },
             modifier = Modifier.padding(top = 10.dp)
         ) {
-            Text("Back to Step 1", color = Color.White)
+            Text("Back to Step 1", color = BrandGreen)
         }
     }
 }
@@ -587,13 +554,13 @@ fun RegisterS3Screen(viewModel: EcoViewModel) {
     ) {
         Text(
             text = "Language & Bot Security",
-            color = Color.White,
+            color = TextPrimary,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold
         )
         Text(
             text = "Step 3: Preference & Verification",
-            color = Color.LightGray,
+            color = TextSecondary,
             fontSize = 14.sp,
             modifier = Modifier.padding(top = 4.dp, bottom = 20.dp)
         )
@@ -602,7 +569,7 @@ fun RegisterS3Screen(viewModel: EcoViewModel) {
             Column {
                 Text(
                     text = "🌱 Choose Preferred Language",
-                    color = Color.White,
+                    color = TextPrimary,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
                 )
@@ -619,9 +586,10 @@ fun RegisterS3Screen(viewModel: EcoViewModel) {
                         Button(
                             onClick = { viewModel.selectLanguage(lang) },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = if (selected) Color(0xFF6CF097) else Color(0x33FFFFFF),
-                                contentColor = if (selected) Color.Black else Color.White
+                                containerColor = if (selected) BrandGreen else Color(0xFFF1F5F1),
+                                contentColor = if (selected) Color.White else TextPrimary
                             ),
+                            border = if (!selected) BorderStroke(1.dp, BorderSage) else null,
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.weight(1f)
                         ) {
@@ -643,7 +611,7 @@ fun RegisterS3Screen(viewModel: EcoViewModel) {
                 // Alternative Option: Phone OTP
                 Text(
                     text = "🔐 Phone OTP Activation",
-                    color = Color.White,
+                    color = TextPrimary,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
                 )
@@ -656,13 +624,8 @@ fun RegisterS3Screen(viewModel: EcoViewModel) {
                     OutlinedTextField(
                         value = phoneNum,
                         onValueChange = { viewModel.phoneInput.value = it },
-                        placeholder = { Text("Mobile Number", color = Color.Gray, fontSize = 13.sp) },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            focusedBorderColor = Color(0xFF6CF097),
-                            unfocusedBorderColor = Color(0x66FFFFFF)
-                        ),
+                        placeholder = { Text("Mobile Number", color = TextSecondary, fontSize = 13.sp) },
+                        colors = customTextFieldColors(),
                         modifier = Modifier.weight(1.3f),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
@@ -672,7 +635,7 @@ fun RegisterS3Screen(viewModel: EcoViewModel) {
 
                     Button(
                         onClick = { viewModel.sendOTP() },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20)),
+                        colors = ButtonDefaults.buttonColors(containerColor = BrandGreen),
                         shape = RoundedCornerShape(8.dp),
                         enabled = otpStatus != "VERIFIED",
                         modifier = Modifier.weight(1f).height(50.dp)
@@ -680,7 +643,8 @@ fun RegisterS3Screen(viewModel: EcoViewModel) {
                         Text(
                             text = if (otpStatus == "SENT") "Resend" else "Send OTP",
                             fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
                         )
                     }
                 }
@@ -694,13 +658,8 @@ fun RegisterS3Screen(viewModel: EcoViewModel) {
                         OutlinedTextField(
                             value = typedOTP,
                             onValueChange = { viewModel.otpTypedCode.value = it },
-                            placeholder = { Text("Enter OTP (123456)", color = Color.Gray, fontSize = 13.sp) },
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White,
-                                focusedBorderColor = Color(0xFF6CF097),
-                                unfocusedBorderColor = Color(0x66FFFFFF)
-                            ),
+                            placeholder = { Text("Enter OTP (123456)", color = TextSecondary, fontSize = 13.sp) },
+                            colors = customTextFieldColors(),
                             modifier = Modifier.weight(1.3f),
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
@@ -710,19 +669,19 @@ fun RegisterS3Screen(viewModel: EcoViewModel) {
 
                         Button(
                             onClick = { viewModel.verifyOTP() },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32)),
+                            colors = ButtonDefaults.buttonColors(containerColor = BrandGreen),
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.weight(1f).height(50.dp)
                         ) {
-                            Text("Verify", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            Text("Verify", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White)
                         }
                     }
                 }
 
                 if (otpStatus == "ERROR") {
-                    Text("Incorrect Mobile Number or OTP code.", color = Color(0xFFFF8A80), fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
+                    Text("Incorrect Mobile Number or OTP code.", color = Color(0xFFBA1A1A), fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
                 } else if (otpStatus == "VERIFIED") {
-                    Text("OTP Verified Successfully!", color = Color(0xFF69F0AE), fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
+                    Text("OTP Verified Successfully!", color = BrandGreen, fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -730,13 +689,13 @@ fun RegisterS3Screen(viewModel: EcoViewModel) {
                 // BOT PROTECTION CAPTCHA
                 Text(
                     text = "🤖 CAPTCHA Bot Protection",
-                    color = Color.White,
+                    color = TextPrimary,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp
                 )
                 Text(
                     text = "Please solve this quick equation to proceed:",
-                    color = Color.LightGray,
+                    color = TextSecondary,
                     fontSize = 11.sp,
                     modifier = Modifier.padding(bottom = 6.dp)
                 )
@@ -745,15 +704,15 @@ fun RegisterS3Screen(viewModel: EcoViewModel) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(10.dp))
-                        .background(Color(0x19FFFFFF))
-                        .border(1.dp, Color(0x1DFFFFFF), RoundedCornerShape(10.dp))
+                        .background(TintCap)
+                        .border(1.dp, BorderSage, RoundedCornerShape(10.dp))
                         .padding(10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
                         text = "What is $cap1 + $cap2?",
-                        color = Color.White,
+                        color = TextPrimary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp
                     )
@@ -762,14 +721,9 @@ fun RegisterS3Screen(viewModel: EcoViewModel) {
                         OutlinedTextField(
                             value = enteredCap,
                             onValueChange = { viewModel.captchaUserInput.value = it },
-                            placeholder = { Text("?", color = Color.Gray) },
+                            placeholder = { Text("?", color = TextSecondary) },
                             singleLine = true,
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White,
-                                focusedBorderColor = Color(0xFF6CF097),
-                                unfocusedBorderColor = Color(0x66FFFFFF)
-                            ),
+                            colors = customTextFieldColors(),
                             shape = RoundedCornerShape(6.dp),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.width(60.dp).height(50.dp)
@@ -789,14 +743,14 @@ fun RegisterS3Screen(viewModel: EcoViewModel) {
                             Icon(
                                 imageVector = if (capSuccess) Icons.Default.CheckCircle else Icons.Default.Refresh,
                                 contentDescription = "Verify captcha",
-                                tint = if (capSuccess) Color(0xFF6CF097) else Color.White
+                                tint = if (capSuccess) BrandGreen else TextSecondary
                             )
                         }
                     }
                 }
 
                 if (capErr.isNotBlank()) {
-                    Text(capErr, color = Color(0xFFFF8A80), fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
+                    Text(capErr, color = Color(0xFFBA1A1A), fontSize = 12.sp, modifier = Modifier.padding(top = 4.dp))
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -806,21 +760,24 @@ fun RegisterS3Screen(viewModel: EcoViewModel) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(8.dp))
-                        .background(Color(0x0AFFFFFF))
+                        .background(Color(0x0C000000))
+                        .border(0.8.dp, BorderSage, RoundedCornerShape(8.dp))
                         .padding(10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Enable Student Face Login", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                        Text("Simulate facial mapping at launch (Beta)", color = Color.Gray, fontSize = 10.sp)
+                        Text("Enable Student Face Login", color = TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text("Simulate facial mapping at launch (Beta)", color = TextSecondary, fontSize = 10.sp)
                     }
                     Switch(
                         checked = false,
                         onCheckedChange = { /* Placeholder Future switch API callback */ },
                         colors = SwitchDefaults.colors(
-                            checkedThumbColor = Color(0xFF6CF097),
-                            checkedTrackColor = Color(0x666CF097)
+                            checkedThumbColor = Color.White,
+                            checkedTrackColor = BrandGreen,
+                            uncheckedThumbColor = TextSecondary,
+                            uncheckedTrackColor = BorderSage
                         )
                     )
                 }
@@ -829,12 +786,12 @@ fun RegisterS3Screen(viewModel: EcoViewModel) {
 
                 Button(
                     onClick = { viewModel.completeRegistration() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32)),
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandGreen),
                     shape = RoundedCornerShape(12.dp),
                     enabled = capSuccess, // Enabled only if CAPTCHA passes
                     modifier = Modifier.fillMaxWidth().height(48.dp)
                 ) {
-                    Text("Register & Activate", fontWeight = FontWeight.Bold)
+                    Text("Register & Activate", fontWeight = FontWeight.Bold, color = Color.White)
                 }
             }
         }
@@ -842,7 +799,7 @@ fun RegisterS3Screen(viewModel: EcoViewModel) {
         Spacer(modifier = Modifier.height(10.dp))
 
         TextButton(onClick = { viewModel.navigateTo(EcoScreen.REGISTER_S2) }) {
-            Text("Back to Academic Details", color = Color.White)
+            Text("Back to Academic Details", color = BrandGreen)
         }
     }
 }
@@ -871,7 +828,7 @@ fun VerificationScreen(viewModel: EcoViewModel) {
                 Icon(
                     imageVector = Icons.Default.Email,
                     contentDescription = "Email sent",
-                    tint = Color(0xFF6CF097),
+                    tint = BrandGreen,
                     modifier = Modifier.size(72.dp)
                 )
 
@@ -879,7 +836,7 @@ fun VerificationScreen(viewModel: EcoViewModel) {
 
                 Text(
                     text = "Verify Your Student Email",
-                    color = Color.White,
+                    color = TextPrimary,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
@@ -887,31 +844,31 @@ fun VerificationScreen(viewModel: EcoViewModel) {
 
                 Text(
                     text = "We have dispatched a validation link to\n${regEmail.ifBlank { "your-email@school.edu" }}",
-                    color = Color.LightGray,
+                    color = TextSecondary,
                     fontSize = 13.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(top = 8.dp, bottom = 24.dp)
                 )
 
-                Divider(color = Color(0x19FFFFFF))
+                HorizontalDivider(color = BorderSage)
 
                 Spacer(modifier = Modifier.height(20.dp))
 
                 // Simulator button to activate link
                 Button(
                     onClick = { viewModel.simulateEmailActivation() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20)),
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandGreen),
                     shape = RoundedCornerShape(10.dp),
                     modifier = Modifier.fillMaxWidth().height(48.dp)
                 ) {
-                    Text("Simulate Clicking Activation Link", fontWeight = FontWeight.Bold)
+                    Text("Simulate Clicking Activation Link", fontWeight = FontWeight.Bold, color = Color.White)
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
                     text = "Note: In a live system, the student clicks this link inside their email inbox to securely activate database access.",
-                    color = Color.Gray,
+                    color = TextSecondary,
                     fontSize = 11.sp,
                     textAlign = TextAlign.Center,
                     lineHeight = 15.sp
@@ -938,13 +895,13 @@ fun ProfileSetupScreen(viewModel: EcoViewModel) {
     ) {
         Text(
             text = "🌱 Student Eco Profile",
-            color = Color.White,
+            color = TextPrimary,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold
         )
         Text(
             text = "Fine tune your initial planting target",
-            color = Color.LightGray,
+            color = TextSecondary,
             fontSize = 13.sp,
             modifier = Modifier.padding(top = 4.dp, bottom = 24.dp)
         )
@@ -954,13 +911,8 @@ fun ProfileSetupScreen(viewModel: EcoViewModel) {
                 OutlinedTextField(
                     value = favPlant,
                     onValueChange = { viewModel.favoritePlant.value = it },
-                    label = { Text("🌱 Favorite Plant (e.g. Tulsi, Rose)", color = Color.LightGray) },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = Color(0xFF6CF097),
-                        unfocusedBorderColor = Color(0x66FFFFFF)
-                    ),
+                    label = { Text("🌱 Favorite Plant (e.g. Tulsi, Rose)") },
+                    colors = customTextFieldColors(),
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -970,13 +922,8 @@ fun ProfileSetupScreen(viewModel: EcoViewModel) {
                 OutlinedTextField(
                     value = loc,
                     onValueChange = { viewModel.setupLocation.value = it },
-                    label = { Text("📍 Plantation Location (e.g. Balcony, Yard)", color = Color.LightGray) },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedBorderColor = Color(0xFF6CF097),
-                        unfocusedBorderColor = Color(0x66FFFFFF)
-                    ),
+                    label = { Text("📍 Plantation Location (e.g. Balcony, Yard)") },
+                    colors = customTextFieldColors(),
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -984,29 +931,31 @@ fun ProfileSetupScreen(viewModel: EcoViewModel) {
                 Spacer(modifier = Modifier.height(20.dp))
 
                 // Plantation Goal sliders and helpers
-                Text("🎯 Annual Plantation Goal: $goal Plants", color = Color.White, fontSize = 13.sp)
+                Text("🎯 Annual Plantation Goal: $goal Plants", color = TextPrimary, fontSize = 13.sp)
                 Slider(
                     value = goal.toFloatOrNull() ?: 5f,
                     onValueChange = { viewModel.setupGoal.value = it.toInt().toString() },
                     valueRange = 1f..30f,
                     steps = 29,
                     colors = SliderDefaults.colors(
-                        thumbColor = Color(0xFF6CF097),
-                        activeTrackColor = Color(0xFF2E7D32)
+                        thumbColor = BrandGreen,
+                        activeTrackColor = BrandGreen,
+                        inactiveTrackColor = BorderSage
                     )
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                Text("🌳 Trees to grow this year: $trees", color = Color.White, fontSize = 13.sp)
+                Text("🌳 Trees to grow this year: $trees", color = TextPrimary, fontSize = 13.sp)
                 Slider(
                     value = trees.toFloatOrNull() ?: 2f,
                     onValueChange = { viewModel.setupTrees.value = it.toInt().toString() },
                     valueRange = 0f..10f,
                     steps = 10,
                     colors = SliderDefaults.colors(
-                        thumbColor = Color(0xFF6CF097),
-                        activeTrackColor = Color(0xFF2E7D32)
+                        thumbColor = BrandGreen,
+                        activeTrackColor = BrandGreen,
+                        inactiveTrackColor = BorderSage
                     )
                 )
 
@@ -1014,7 +963,7 @@ fun ProfileSetupScreen(viewModel: EcoViewModel) {
 
                 Button(
                     onClick = { viewModel.completeProfileSetup() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32)),
+                    colors = ButtonDefaults.buttonColors(containerColor = BrandGreen),
                     shape = RoundedCornerShape(12.dp),
                     modifier = Modifier.fillMaxWidth().height(50.dp)
                 ) {

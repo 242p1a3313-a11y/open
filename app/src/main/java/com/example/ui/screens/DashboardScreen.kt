@@ -86,8 +86,8 @@ fun DashboardHeader(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
-            .background(Color(0xD0081C0F)) // Dark deep canopy frame background
-            .border(width = 1.dp, color = Color(0x1AFFFFFF), shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
+            .background(Color(0xE6FFFFFF)) // Light cream/white frame background
+            .border(width = 1.dp, color = BorderSage, shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
             .padding(horizontal = 16.dp, vertical = 14.dp)
     ) {
         Row(
@@ -99,7 +99,7 @@ fun DashboardHeader(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = "🌱 EcoFriend",
-                        color = Color(0xFF6CF097),
+                        color = BrandGreen,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
                     )
@@ -107,7 +107,7 @@ fun DashboardHeader(
                     Box(
                         modifier = Modifier
                             .clip(CircleShape)
-                            .background(Color(0x336CF097))
+                            .background(TintCap)
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
                         Text(
@@ -116,7 +116,7 @@ fun DashboardHeader(
                                 "Telugu" -> "TE-IN 🇮🇳"
                                 else -> "EN-IN 🇬🇧"
                             },
-                            color = Color.White,
+                            color = BrandGreen,
                             fontSize = 9.sp,
                             fontWeight = FontWeight.ExtraBold
                         )
@@ -124,7 +124,7 @@ fun DashboardHeader(
                 }
                 Text(
                     text = "Hello, $studentName!",
-                    color = Color.White,
+                    color = TextPrimary,
                     fontWeight = FontWeight.ExtraBold,
                     fontSize = 15.sp,
                     modifier = Modifier.padding(top = 2.dp)
@@ -136,7 +136,7 @@ fun DashboardHeader(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0x33FF6D00))
+                        .background(Color(0xFFFFEBE6))
                         .padding(horizontal = 10.dp, vertical = 6.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -144,7 +144,7 @@ fun DashboardHeader(
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "$streakCount Day",
-                            color = Color(0xFFFF9100),
+                            color = Color(0xFFE65100),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -157,7 +157,7 @@ fun DashboardHeader(
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0x336CF097))
+                        .background(TintCap)
                         .padding(horizontal = 10.dp, vertical = 6.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -165,7 +165,7 @@ fun DashboardHeader(
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "$coins PTS",
-                            color = Color(0xFF6CF097),
+                            color = BrandGreen,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -182,7 +182,7 @@ fun DashboardHeader(
                     Icon(
                         imageVector = Icons.Default.ExitToApp,
                         contentDescription = "Sign Out",
-                        tint = Color.LightGray
+                        tint = Color(0xFFBA1A1A)
                     )
                 }
             }
@@ -195,11 +195,11 @@ fun DashboardBottomBar(activeTab: String, onTabSelected: (String) -> Unit) {
     val tabs = listOf("Mitra Chat", "Scan Diagnostic", "My Garden", "Achievements")
     
     NavigationBar(
-        containerColor = Color(0xD0081C0F), // Semi translucent bottom plate
+        containerColor = Color(0xF0FFFFFF), // Light translucent bottom plate
         tonalElevation = 8.dp,
         modifier = Modifier
             .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-            .border(width = 0.8.dp, color = Color(0x19FFFFFF), shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+            .border(width = 0.8.dp, color = BorderSage, shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
     ) {
         tabs.forEach { tab ->
             val isSelected = activeTab == tab
@@ -230,11 +230,11 @@ fun DashboardBottomBar(activeTab: String, onTabSelected: (String) -> Unit) {
                     )
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = Color.Black,
-                    unselectedIconColor = Color.LightGray,
-                    selectedTextColor = Color(0xFF6CF097),
-                    unselectedTextColor = Color.LightGray,
-                    indicatorColor = Color(0xFF6CF097)
+                    selectedIconColor = Color.White,
+                    unselectedIconColor = TextSecondary,
+                    selectedTextColor = BrandGreen,
+                    unselectedTextColor = TextSecondary,
+                    indicatorColor = BrandGreen
                 )
             )
         }
@@ -502,7 +502,7 @@ fun PrakritiMitraThinkingBubble() {
             modifier = Modifier
                 .size(32.dp)
                 .clip(CircleShape)
-                .background(Color(0x33FFFFFF)),
+                .background(TintCap),
             contentAlignment = Alignment.Center
         ) {
             Text("🤖", fontSize = 16.sp)
@@ -510,7 +510,7 @@ fun PrakritiMitraThinkingBubble() {
         Spacer(modifier = Modifier.width(10.dp))
         Text(
             text = "PrakritiMitra is thinking...",
-            color = Color.LightGray,
+            color = TextSecondary,
             fontSize = 12.sp
         )
     }
@@ -535,20 +535,20 @@ fun SimulatedMicPulseWaves() {
             .fillMaxWidth()
             .padding(vertical = 6.dp)
             .clip(RoundedCornerShape(8.dp))
-            .background(Color(0x22FF5252))
+            .background(Color(0xFFFFEBE6))
             .padding(horizontal = 14.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
-        Text("Listening speech command...", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+        Text("Listening speech command...", color = Color(0xFFBA1A1A), fontSize = 12.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.width(12.dp))
         
-        // Simulating 4 energetic visual frequency waves
-        Box(modifier = Modifier.size(6.dp, 16.dp * scale1).clip(CircleShape).background(Color.White))
+        // Simulating energetic visual frequency waves
+        Box(modifier = Modifier.size(6.dp, 16.dp * scale1).clip(CircleShape).background(Color(0xFFBA1A1A)))
         Spacer(modifier = Modifier.width(4.dp))
-        Box(modifier = Modifier.size(6.dp, 16.dp * scale2).clip(CircleShape).background(Color.White))
+        Box(modifier = Modifier.size(6.dp, 16.dp * scale2).clip(CircleShape).background(Color(0xFFBA1A1A)))
         Spacer(modifier = Modifier.width(4.dp))
-        Box(modifier = Modifier.size(6.dp, 16.dp * scale1).clip(CircleShape).background(Color.White))
+        Box(modifier = Modifier.size(6.dp, 16.dp * scale1).clip(CircleShape).background(Color(0xFFBA1A1A)))
     }
 }
 
@@ -568,7 +568,7 @@ fun ScanTab(viewModel: EcoViewModel) {
     ) {
         Text(
             text = "🌿 AI Camera Leaf Scan",
-            color = Color.White,
+            color = TextPrimary,
             fontWeight = FontWeight.Bold,
             fontSize = 20.sp,
             modifier = Modifier.fillMaxWidth(),
@@ -576,7 +576,7 @@ fun ScanTab(viewModel: EcoViewModel) {
         )
         Text(
             text = "Point camera at any damaged or healthy leaves",
-            color = Color.LightGray,
+            color = TextSecondary,
             fontSize = 12.sp,
             modifier = Modifier
                 .fillMaxWidth()
@@ -590,8 +590,8 @@ fun ScanTab(viewModel: EcoViewModel) {
                 .fillMaxWidth()
                 .height(220.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color(0x26000000))
-                .border(2.dp, Color(0xFF6CF097), RoundedCornerShape(16.dp)),
+                .background(Color(0x0C000000))
+                .border(2.dp, BrandGreen, RoundedCornerShape(16.dp)),
             contentAlignment = Alignment.Center
         ) {
             // Lens Gridlines drawing representation
@@ -600,28 +600,28 @@ fun ScanTab(viewModel: EcoViewModel) {
                 val verticalThird = size.height / 3
 
                 // Drawing subtle viewfinder gridlines
-                drawLine(Color(0x33ffffff), Offset(horizontalThird, 0f), Offset(horizontalThird, size.height), 1f)
-                drawLine(Color(0x33ffffff), Offset(horizontalThird * 2, 0f), Offset(horizontalThird * 2, size.height), 1f)
-                drawLine(Color(0x33ffffff), Offset(0f, verticalThird), Offset(size.width, verticalThird), 1f)
-                drawLine(Color(0x33ffffff), Offset(0f, verticalThird * 2), Offset(size.width, verticalThird * 2), 1f)
+                drawLine(Color(0x1F191C19), Offset(horizontalThird, 0f), Offset(horizontalThird, size.height), 1f)
+                drawLine(Color(0x1F191C19), Offset(horizontalThird * 2, 0f), Offset(horizontalThird * 2, size.height), 1f)
+                drawLine(Color(0x1F191C19), Offset(0f, verticalThird), Offset(size.width, verticalThird), 1f)
+                drawLine(Color(0x1F191C19), Offset(0f, verticalThird * 2), Offset(size.width, verticalThird * 2), 1f)
             }
 
             if (progress == null) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("🍃 [ Leaf Shape Target ]", color = Color(0xFFAEEA00), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text("🍃 [ Leaf Shape Target ]", color = BrandGreen, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     Spacer(modifier = Modifier.height(10.dp))
-                    Text("Fits leaf silhouette within bounds to diagnose accurately", color = Color.LightGray, fontSize = 11.sp)
+                    Text("Fits leaf silhouette within bounds to diagnose accurately", color = TextSecondary, fontSize = 11.sp)
                 }
             } else {
                 Surface(
-                    color = Color(0xAA000000),
+                    color = Color(0xC0FFFFFF),
                     modifier = Modifier.fillMaxSize()
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        CircularProgressIndicator(color = Color(0xFF6CF097))
+                        CircularProgressIndicator(color = BrandGreen)
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = when (progress) {
@@ -630,7 +630,7 @@ fun ScanTab(viewModel: EcoViewModel) {
                                 "ANALYZING" -> "Interpreting cells with PrakritiMitra AI..."
                                 else -> "Displaying Results..."
                             },
-                            color = Color.White,
+                            color = TextPrimary,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -644,7 +644,7 @@ fun ScanTab(viewModel: EcoViewModel) {
         if (progress == null) {
             Button(
                 onClick = { viewModel.triggerLeafScan() },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32)),
+                colors = ButtonDefaults.buttonColors(containerColor = BrandGreen),
                 shape = RoundedCornerShape(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -661,31 +661,32 @@ fun ScanTab(viewModel: EcoViewModel) {
                     ) {
                         Icon(
                             imageVector = if (progress == "RESULT_HEALTHY") Icons.Default.CheckCircle else Icons.Default.Warning,
-                            tint = if (progress == "RESULT_HEALTHY") Color(0xFF69F0AE) else Color(0xFFFF5252),
+                            tint = if (progress == "RESULT_HEALTHY") BrandGreen else Color(0xFFBA1A1A),
                             contentDescription = "Diagnostic status"
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             text = scannedName,
-                            color = Color.White,
+                            color = TextPrimary,
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
                         )
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text(text = diagnostics, color = Color.LightGray, fontSize = 13.sp, lineHeight = 18.sp)
+                    Text(text = diagnostics, color = TextSecondary, fontSize = 13.sp, lineHeight = 18.sp)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = careTreatment, color = Color(0xFFB2FF59), fontSize = 13.sp, lineHeight = 18.sp)
+                    Text(text = careTreatment, color = BrandGreen, fontSize = 13.sp, lineHeight = 18.sp, fontWeight = FontWeight.Bold)
 
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Button(
                         onClick = { viewModel.clearScan() },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0x33FFFFFF)),
-                        modifier = Modifier.fillMaxWidth()
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0x0C000000), contentColor = TextPrimary),
+                        modifier = Modifier.fillMaxWidth(),
+                        border = BorderStroke(1.dp, BorderSage)
                     ) {
-                        Text("Clear Scan & Try Again", color = Color.White)
+                        Text("Clear Scan & Try Again", color = TextPrimary)
                     }
                 }
             }
@@ -706,27 +707,27 @@ fun GardenTab(viewModel: EcoViewModel) {
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        Text("🌳 Student Green Garden", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-        Text("Collect Eco points daily by keeping your plants watered!", color = Color.LightGray, fontSize = 12.sp)
+        Text("🌳 Student Green Garden", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+        Text("Collect Eco points daily by keeping your plants watered!", color = TextSecondary, fontSize = 12.sp)
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // Progress bar overview of goals
         GlassmorphicCard(modifier = Modifier.fillMaxWidth()) {
             Column {
-                Text("Your Plantation Target Progress", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text("Your Plantation Target Progress", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 Spacer(modifier = Modifier.height(6.dp))
                 
                 val currentGoal = session?.plantationGoal ?: 5
                 val currentTrees = session?.treesToGrow ?: 2
                 
-                Text("Goal: Plant $currentGoal plants & grow $currentTrees trees this year", color = Color.LightGray, fontSize = 12.sp)
+                Text("Goal: Plant $currentGoal plants & grow $currentTrees trees this year", color = TextSecondary, fontSize = 12.sp)
                 Spacer(modifier = Modifier.height(10.dp))
                 
                 LinearProgressIndicator(
                     progress = 0.6f,
-                    trackColor = Color(0x33FFFFFF),
-                    color = Color(0xFF6CF097),
+                    trackColor = Color(0xFFF1F5F1),
+                    color = BrandGreen,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(8.dp)
@@ -735,8 +736,8 @@ fun GardenTab(viewModel: EcoViewModel) {
                 
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("3 planted (60%)", color = Color.LightGray, fontSize = 11.sp)
-                    Text("Goal: $currentGoal", color = Color.LightGray, fontSize = 11.sp)
+                    Text("3 planted (60%)", color = TextSecondary, fontSize = 11.sp)
+                    Text("Goal: $currentGoal", color = TextSecondary, fontSize = 11.sp)
                 }
             }
         }
@@ -744,7 +745,7 @@ fun GardenTab(viewModel: EcoViewModel) {
         Spacer(modifier = Modifier.height(20.dp))
 
         // Growing plants lists inside garden
-        Text("Your Growing Plants (2)", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+        Text("Your Growing Plants (2)", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
         Spacer(modifier = Modifier.height(10.dp))
 
         // Card item 1
@@ -776,10 +777,11 @@ fun GardenTab(viewModel: EcoViewModel) {
 
         // Add Plant Dialog Trigger
         Card(
-            colors = CardDefaults.cardColors(containerColor = Color(0x19FFFFFF)),
+            colors = CardDefaults.cardColors(containerColor = TintCap),
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .fillMaxWidth()
+                .border(2.dp, BorderSage, RoundedCornerShape(12.dp))
                 .clickable { /* Simulate Adding a dynamic plant */ }
         ) {
             Row(
@@ -787,9 +789,9 @@ fun GardenTab(viewModel: EcoViewModel) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Sapling", tint = Color(0xFF6CF097))
+                Icon(Icons.Default.Add, contentDescription = "Add Sapling", tint = BrandGreen)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Register a New Sapling (+50 XP)", color = Color(0xFF6CF097), fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                Text("Register a New Sapling (+50 XP)", color = BrandGreen, fontWeight = FontWeight.Bold, fontSize = 13.sp)
             }
         }
     }
@@ -803,9 +805,11 @@ fun PlantCardItem(
     onWaterPressed: () -> Unit
 ) {
     Card(
-        colors = CardDefaults.cardColors(containerColor = Color(0x23FFFFFF)),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(14.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(width = 1.dp, color = BorderSage, shape = RoundedCornerShape(14.dp))
     ) {
         Row(
             modifier = Modifier.padding(14.dp),
@@ -813,14 +817,14 @@ fun PlantCardItem(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(name, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                Text("📍 $location", color = Color.LightGray, fontSize = 11.sp, modifier = Modifier.padding(top = 2.dp))
+                Text(name, color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                Text("📍 $location", color = TextSecondary, fontSize = 11.sp, modifier = Modifier.padding(top = 2.dp))
                 
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 Text(
                     text = if (lastWateredHours == 0) "Status: Just Watered! 💧" else "Last Watered: $lastWateredHours hours ago",
-                    color = if (lastWateredHours > 10) Color(0xFFFF8B8B) else Color(0xFF99FF99),
+                    color = if (lastWateredHours > 10) Color(0xFFBA1A1A) else BrandGreen,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -828,11 +832,11 @@ fun PlantCardItem(
 
             Button(
                 onClick = onWaterPressed,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1B5E20)),
+                colors = ButtonDefaults.buttonColors(containerColor = BrandGreen),
                 shape = RoundedCornerShape(8.dp),
                 modifier = Modifier.height(40.dp)
             ) {
-                Text("Water 💧", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text("Water 💧", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.White)
             }
         }
     }
@@ -848,8 +852,8 @@ fun AchievementsTab(viewModel: EcoViewModel, userBadges: String) {
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        Text("🥇 Student Achievements & Badges", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-        Text("Unlock medals by participating in eco-planting audits with PrakritiMitra!", color = Color.LightGray, fontSize = 12.sp)
+        Text("🥇 Student Achievements & Badges", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+        Text("Unlock medals by participating in eco-planting audits with PrakritiMitra!", color = TextSecondary, fontSize = 12.sp)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -879,7 +883,7 @@ fun AchievementsTab(viewModel: EcoViewModel, userBadges: String) {
         Spacer(modifier = Modifier.height(24.dp))
 
         // Local Campus Leaderboard to raise competitive vibes
-        Text("🏆 Campus Green Standings", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+        Text("🏆 Campus Green Standings", color = TextPrimary, fontWeight = FontWeight.Bold, fontSize = 15.sp)
         Spacer(modifier = Modifier.height(10.dp))
 
         LeaderboardItem(rank = 1, name = "Anjali Rao (Grade 10)", points = 1650, isSelf = false)
@@ -892,14 +896,14 @@ fun AchievementsTab(viewModel: EcoViewModel, userBadges: String) {
 fun BadgeHighlightCard(title: String, desc: String, unlocked: Boolean) {
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = if (unlocked) Color(0x382E7D32) else Color(0x19FFFFFF)
+            containerColor = if (unlocked) TintCap else Color(0xFFF1F5F1)
         ),
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
             .fillMaxWidth()
             .border(
                 width = 1.dp,
-                color = if (unlocked) Color(0xFF6CF097) else Color(0x11FFFFFF),
+                color = if (unlocked) BrandGreen else BorderSage,
                 shape = RoundedCornerShape(12.dp)
             )
     ) {
@@ -911,7 +915,7 @@ fun BadgeHighlightCard(title: String, desc: String, unlocked: Boolean) {
                 modifier = Modifier
                     .size(45.dp)
                     .clip(CircleShape)
-                    .background(if (unlocked) Color(0x556CF097) else Color(0x11FFFFFF)),
+                    .background(if (unlocked) BorderSage else Color(0x11000000)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -923,13 +927,13 @@ fun BadgeHighlightCard(title: String, desc: String, unlocked: Boolean) {
             Column {
                 Text(
                     text = title,
-                    color = if (unlocked) Color.White else Color.Gray,
+                    color = if (unlocked) TextPrimary else Color.Gray,
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp
                 )
                 Text(
                     text = desc,
-                    color = if (unlocked) Color.LightGray else Color.DarkGray,
+                    color = if (unlocked) TextSecondary else Color.DarkGray,
                     fontSize = 11.sp,
                     lineHeight = 15.sp,
                     modifier = Modifier.padding(top = 2.dp)
@@ -943,12 +947,17 @@ fun BadgeHighlightCard(title: String, desc: String, unlocked: Boolean) {
 fun LeaderboardItem(rank: Int, name: String, points: Int, isSelf: Boolean) {
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelf) Color(0x3D6CF097) else Color(0x0AFFFFFF)
+            containerColor = if (isSelf) TintCap else Color.White
         ),
         shape = RoundedCornerShape(10.dp),
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 3.dp)
+            .border(
+                width = 1.dp,
+                color = if (isSelf) BorderSage else Color.Transparent,
+                shape = RoundedCornerShape(10.dp)
+            )
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
@@ -958,7 +967,7 @@ fun LeaderboardItem(rank: Int, name: String, points: Int, isSelf: Boolean) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "#$rank",
-                    color = if (rank == 1) Color(0xFFFFD54F) else Color.White,
+                    color = if (rank == 1) Color(0xFFD38D10) else TextPrimary,
                     fontWeight = FontWeight.Black,
                     fontSize = 14.sp,
                     modifier = Modifier.width(28.dp)
@@ -966,12 +975,12 @@ fun LeaderboardItem(rank: Int, name: String, points: Int, isSelf: Boolean) {
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = name,
-                    color = Color.White,
+                    color = TextPrimary,
                     fontWeight = if (isSelf) FontWeight.Bold else FontWeight.SemiBold,
                     fontSize = 13.sp
                 )
             }
-            Text("$points XP", color = Color(0xFF6CF097), fontWeight = FontWeight.Bold, fontSize = 12.sp)
+            Text("$points XP", color = BrandGreen, fontWeight = FontWeight.Bold, fontSize = 12.sp)
         }
     }
 }
